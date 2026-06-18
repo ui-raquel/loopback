@@ -1,51 +1,78 @@
-// import React, { useState } from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navbar } from '../components/Navbar';
 import { MessageSquare, ArrowRight } from 'lucide-react';
+import { db } from '../firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { useAuth } from '../AuthContext';
 
 export default function MyReviews() {
-    // 1. Estado para controlar qual separador está ativo
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState<'received' | 'given'>('received');
 
-    // 2. Dados simulados das avaliações recebidas nos projetos do utilizador
-    const reviewsReceived = [
-        {
-            id: 1,
-            projectName: "App de Finanças",
-            reviewer: "Carlos Costa",
-            comment: "A paleta de cores funciona bem, mas os botões de ação precisam de mais contraste para facilitar a navegação.",
-            date: "12 Junho 2026",
-            rating: 4
-        },
-        {
-            id: 2,
-            projectName: "App de Finanças",
-            reviewer: "Ana Lopes",
-            comment: "Boa estrutura. Sugiro rever o alinhamento no ecrã de perfil.",
-            date: "10 Junho 2026",
-            rating: 5
-        }
-    ];
+    const [reviews, setReviews] = useState<any[]>([]);
+    const [projects, setProjects] = useState<any[]>([]);
+    const [usersList, setUsersList] = useState<any[]>([]);
 
-    // 3. Dados simulados das avaliações que o utilizador deu a outros projetos
-    const reviewsGiven = [
-        {
-            id: 3,
-            projectName: "Design System",
-            author: "Maria Santos",
-            comment: "A documentação dos componentes está clara. Adicionei um pino sobre a altura da barra de navegação em ecrãs mobile.",
-            date: "15 Junho 2026",
-            earnedCredits: 40
-        },
-        {
-            id: 4,
-            projectName: "API de Pagamentos",
-            author: "João Silva",
-            comment: "Identifiquei um erro na resposta do servidor quando o cartão não tem saldo. Deixei os detalhes na ideia global.",
-            date: "05 Junho 2026",
-            earnedCredits: 80
+    useEffect(() => {
+        if (!user) return;
+
+        const unsubReviews = onSnapshot(collection(db, 'reviews'), (snap) => 
+            setReviews(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+        );
+        const unsubProjects = onSnapshot(collection(db, 'projects'), (snap) => 
+            setProjects(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+        );
+        const unsubUsers = onSnapshot(collection(db, 'users'), (snap) => 
+            setUsersList(snap.docs.map(d => ({ id: d.id, ...d.data() })))
+        );
+
+        return () => {
+            unsubReviews();
+            unsubProjects();
+            unsubUsers();
+        };
+    }, [user]);
+
+    const reviewsGiven: any[] = [];
+    const reviewsReceived: any[] = [];
+
+    const sortedReviews = [...reviews].sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    sortedReviews.forEach(review => {
+        const project = projects.find(p => p.id === review.projectId);
+        const reviewer = usersList.find(u => u.id === review.reviewerId);
+
+        if (!project) return; //ignroe if the project was deleted
+
+        const dateFormatted = new Date(review.createdAt).toLocaleDateString('en-US', { 
+            day: 'numeric', month: 'short', year: 'numeric' 
+        });
+
+        const commentText = review.globalIdea || "Feedback provided via Pins. Check the project to see details.";
+
+        if (review.reviewerId === user?.uid) {
+            reviewsGiven.push({
+                id: review.id,
+                projectName: project.title,
+                author: project.authorName,
+                comment: commentText,
+                date: dateFormatted,
+                earnedCredits: project.credits
+            });
         }
-    ];
+
+        if (project.authorId === user?.uid) {
+            reviewsReceived.push({
+                id: review.id,
+                projectName: project.title,
+                reviewer: reviewer?.name || "A Peer",
+                comment: commentText,
+                date: dateFormatted
+            });
+        }
+    });
 
     return (
         <div className="flex flex-col md:flex-row h-screen w-screen bg-gray-100 overflow-hidden font-sans">
@@ -61,7 +88,6 @@ export default function MyReviews() {
                     Track the feedback you received and the reviews you provided
                 </h2>
 
-                {/* 4. Separadores (Tabs) */}
                 <div className="flex space-x-4 mb-8">
                     <button
                         onClick={() => setActiveTab('received')}
@@ -83,14 +109,15 @@ export default function MyReviews() {
                     </button>
                 </div>
 
-                {/* 5. Área de Conteúdo Condicional */}
                 <div className="bg-white p-6 md:p-8 rounded-[32px] shadow-sm border border-gray-100 flex-1">
 
-                    {/* Renderiza a lista "Recebidas" se a tab ativa for 'received' */}
                     {activeTab === 'received' && (
                         <div className="space-y-6">
                             {reviewsReceived.length === 0 ? (
-                                <p className="text-gray-500">No feedback received yet.</p>
+                                <div className="text-center py-10 text-gray-500">
+                                    <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                                    <p>No feedback received yet. Upload more projects to get reviews!</p>
+                                </div>
                             ) : (
                                 reviewsReceived.map(review => (
                                     <div key={review.id} className="p-6 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col gap-3">
@@ -101,7 +128,6 @@ export default function MyReviews() {
                                             </div>
                                             <span className="text-sm text-gray-400">{review.date}</span>
                                         </div>
-                                        {/* A secção das estrelas foi removida daqui */}
                                         <div className="flex gap-3 mt-2">
                                             <MessageSquare className="text-brand-pink w-5 h-5 flex-shrink-0 mt-1" />
                                             <p className="text-gray-700">{review.comment}</p>
@@ -112,11 +138,13 @@ export default function MyReviews() {
                         </div>
                     )}
 
-                    {/* Renderiza a lista "Dadas" se a tab ativa for 'given' */}
                     {activeTab === 'given' && (
                         <div className="space-y-6">
                             {reviewsGiven.length === 0 ? (
-                                <p className="text-gray-500">You haven't reviewed any projects yet.</p>
+                                <div className="text-center py-10 text-gray-500">
+                                    <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                                    <p>You haven't reviewed any projects yet. Go to the feed to earn credits!</p>
+                                </div>
                             ) : (
                                 reviewsGiven.map(review => (
                                     <div key={review.id} className="p-6 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col gap-3">

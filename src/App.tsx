@@ -9,6 +9,8 @@ import FindPeers from './pages/FindPeers';
 import Settings from './pages/Settings';
 import Register from './pages/Register';
 import { AuthProvider } from './AuthContext'; 
+import Profile from './pages/Profile';
+import PeerProfile from './pages/PeerProfile';
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
         <Route path="/peers" element={<FindPeers />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/peer/:peerId" element={<PeerProfile />} />
       </Routes>
       </AuthProvider>
     </BrowserRouter>

@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Search, UserPlus, Check, Users } from 'lucide-react';
-
-// Importações do Firebase e Contexto
 import { db } from '../firebase';
 import { collection, onSnapshot, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { useAuth } from '../AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function FindPeers() {
-    const { user, userData } = useAuth(); 
+    const { user, userData } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
     const [peers, setPeers] = useState<any[]>([]);
 
@@ -32,7 +31,7 @@ export default function FindPeers() {
     const toggleFollow = async (id: string) => {
         if (!user) return;
         const userRef = doc(db, 'users', user.uid);
-        
+
         try {
             if (followingIds.includes(id)) {
                 await updateDoc(userRef, { following: arrayRemove(id) });
@@ -58,21 +57,34 @@ export default function FindPeers() {
         const isMutual = isFollowing && isFollower;
 
         return (
-            <div key={peer.id} className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-xl uppercase">
-                        {peer.name?.charAt(0) || "U"}
+            <div key={peer.id} className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 flex items-center justify-between hover:shadow-md transition-shadow">
+
+                {/* Transformámos isto num Link que aponta para o PeerProfile */}
+                <Link to={`/peer/${peer.id}`} className="flex items-center gap-4 flex-1 group">
+                    <div className="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-xl uppercase overflow-hidden">
+                        {peer.avatarUrl ? (
+                            <img src={peer.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                        ) : (
+                            peer.name?.charAt(0) || "U"
+                        )}
                     </div>
                     <div>
-                        <h3 className="font-semibold text-gray-800 text-lg">{peer.name || "Student"}</h3>
+                        <h3 className="font-semibold text-gray-800 text-lg group-hover:text-brand-pink transition-colors">
+                            {peer.name || "Student"}
+                        </h3>
                         <p className={`text-sm font-medium ${isMutual ? 'text-brand-pink' : 'text-gray-500'}`}>
                             {isMutual ? "✨ Peer" : (peer.role || "Member")}
                         </p>
                     </div>
-                </div>
+                </Link>
+
+                {/* O Botão de Follow mantém-se independente */}
                 <button
-                    onClick={() => toggleFollow(peer.id)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2
+                    onClick={(e) => {
+                        e.preventDefault(); // Impede que o clique no botão ative o Link
+                        toggleFollow(peer.id);
+                    }}
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 ml-4
                         ${isFollowing
                             ? 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-red-50 hover:text-red-600 hover:border-red-100'
                             : 'bg-brand-pink/10 text-brand-pink hover:bg-brand-pink hover:text-white'
@@ -116,7 +128,7 @@ export default function FindPeers() {
                         <Users className="text-brand-pink w-5 h-5" />
                         <h3 className="text-xl font-medium text-gray-900">Your Network</h3>
                     </div>
-                    
+
                     {networkPeers.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             {networkPeers.map(renderUserCard)}
