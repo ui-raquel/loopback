@@ -1,5 +1,6 @@
 // Importar a função principal de inicialização do SDK do Firebase
 import { initializeApp } from "firebase/app";
+import { getStorage } from 'firebase/storage';
 
 // Importar as ferramentas de Autenticação, Base de Dados e Analytics
 import { getAuth } from "firebase/auth";
@@ -28,3 +29,4 @@ export const auth = getAuth(app);
 
 // Inicializar e exportar a instância da Base de Dados (Firestore) para uso noutros componentes
 export const db = getFirestore(app);
+export const storage = getStorage(app);
