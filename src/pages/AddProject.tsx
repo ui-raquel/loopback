@@ -3,34 +3,46 @@ import { Navbar } from '../components/Navbar';
 import { UploadCloud, CheckCircle } from 'lucide-react';
 
 export default function AddProject() {
+    // Estados para guardar os dados do formulário
     const [title, setTitle] = useState('');
     const [category, setCategory] = useState('');
     const [description, setDescription] = useState('');
-    const [imageUrl, setImageUrl] = useState('');
+    const [coverImageUrl, setCoverImageUrl] = useState('');
+    const [reviewImageUrl, setReviewImageUrl] = useState('');
 
-    // sucess state for showing the success message after form submission
+    // NOVO: Estado para a complexidade do projeto
+    const [complexity, setComplexity] = useState('');
+
     const [isSubmitted, setIsSubmitted] = useState(false);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        console.log("Novo projeto submetido:", { title, category, description, imageUrl });
+        console.log("Novo projeto:", {
+            title,
+            category,
+            complexity,
+            description,
+            coverImageUrl,
+            reviewImageUrl
+        });
 
         setIsSubmitted(true);
-
         setTimeout(() => setIsSubmitted(false), 3000);
     };
 
     return (
         <div className="flex flex-col md:flex-row h-screen w-screen bg-gray-100 overflow-hidden font-sans">
+
             <div className="flex flex-col w-auto">
                 <Navbar />
             </div>
 
-            {/* principal form section */}
             <section className="flex flex-col flex-1 p-4 md:p-8 m-2 md:m-6 overflow-y-auto">
+
                 <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium mb-2 leading-tight">Add New Project</h1>
                 <h2 className="text-base md:text-xl lg:text-2xl font-light text-gray-500 mb-8 leading-tight">Share your work with the community to get valuable feedback</h2>
+
                 <div className="bg-white p-8 md:p-10 rounded-[32px] shadow-sm border border-gray-100 max-w-3xl w-full">
 
                     {isSubmitted ? (
@@ -40,8 +52,8 @@ export default function AddProject() {
                             <p className="text-gray-500 text-lg">Your project is now live and waiting for reviews.</p>
                         </div>
                     ) : (
-                        /* FORM */
                         <form onSubmit={handleSubmit} className="space-y-6">
+
                             <div className="flex flex-col space-y-2">
                                 <label className="text-gray-700 font-medium text-lg">Project Title</label>
                                 <input
@@ -54,21 +66,40 @@ export default function AddProject() {
                                 />
                             </div>
 
-                            <div className="flex flex-col space-y-2">
-                                <label className="text-gray-700 font-medium text-lg">Category</label>
-                                <select
-                                    required
-                                    value={category}
-                                    onChange={(e) => setCategory(e.target.value)}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-800 outline-none focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/20 transition-all appearance-none"
-                                >
-                                    <option value="" disabled>Select a category...</option>
-                                    <option value="UX/UI">UX/UI Design</option>
-                                    <option value="FRONTEND">Frontend Development</option>
-                                    <option value="BACKEND">Backend Development</option>
-                                    <option value="MOBILE">Mobile App</option>
-                                    <option value="DATA SCIENCE">Data Science</option>
-                                </select>
+                            {/* Agrupamento da Categoria e Complexidade lado a lado em ecrãs maiores */}
+                            <div className="flex flex-col md:flex-row gap-6">
+                                <div className="flex flex-col space-y-2 flex-1">
+                                    <label className="text-gray-700 font-medium text-lg">Category</label>
+                                    <select
+                                        required
+                                        value={category}
+                                        onChange={(e) => setCategory(e.target.value)}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-800 outline-none focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/20 transition-all appearance-none"
+                                    >
+                                        <option value="" disabled>Select a category...</option>
+                                        <option value="UX/UI">UX/UI Design</option>
+                                        <option value="FRONTEND">Frontend Development</option>
+                                        <option value="BACKEND">Backend Development</option>
+                                        <option value="MOBILE">Mobile App</option>
+                                        <option value="DATA SCIENCE">Data Science</option>
+                                    </select>
+                                </div>
+
+                                {/* NOVO: Campo de Complexidade */}
+                                <div className="flex flex-col space-y-2 flex-1">
+                                    <label className="text-gray-700 font-medium text-lg">Complexity Level</label>
+                                    <select
+                                        required
+                                        value={complexity}
+                                        onChange={(e) => setComplexity(e.target.value)}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-800 outline-none focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/20 transition-all appearance-none"
+                                    >
+                                        <option value="" disabled>Select complexity...</option>
+                                        <option value="easy">Easy (Rewards 20 Credits)</option>
+                                        <option value="medium">Medium (Rewards 40 Credits)</option>
+                                        <option value="large">Large (Rewards 80 Credits)</option>
+                                    </select>
+                                </div>
                             </div>
 
                             <div className="flex flex-col space-y-2">
@@ -84,19 +115,31 @@ export default function AddProject() {
                             </div>
 
                             <div className="flex flex-col space-y-2">
-                                <label className="text-gray-700 font-medium text-lg">Cover Image URL</label>
+                                <label className="text-gray-700 font-medium text-lg">Cover Image URL (Feed)</label>
                                 <div className="flex items-center w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 focus-within:border-brand-pink focus-within:ring-2 focus-within:ring-brand-pink/20 transition-all">
                                     <UploadCloud className="text-gray-400 mr-3 flex-shrink-0" />
                                     <input
-                                        type="url"
-                                        required
-                                        value={imageUrl}
-                                        onChange={(e) => setImageUrl(e.target.value)}
+                                        type="url" required
+                                        value={coverImageUrl}
+                                        onChange={(e) => setCoverImageUrl(e.target.value)}
                                         placeholder="https://..."
                                         className="w-full bg-transparent text-gray-800 outline-none"
                                     />
                                 </div>
-                                <p className="text-sm text-gray-400 ml-2">Paste a link to your project's main image (e.g., Unsplash, Imgur).</p>
+                            </div>
+
+                            <div className="flex flex-col space-y-2">
+                                <label className="text-gray-700 font-medium text-lg">Review File URL (Annotation)</label>
+                                <div className="flex items-center w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 focus-within:border-brand-pink focus-within:ring-2 focus-within:ring-brand-pink/20 transition-all">
+                                    <UploadCloud className="text-gray-400 mr-3 flex-shrink-0" />
+                                    <input
+                                        type="url" required
+                                        value={reviewImageUrl}
+                                        onChange={(e) => setReviewImageUrl(e.target.value)}
+                                        placeholder="https://..."
+                                        className="w-full bg-transparent text-gray-800 outline-none"
+                                    />
+                                </div>
                             </div>
 
                             <div className="pt-4">
