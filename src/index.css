@@ -5,6 +5,8 @@
   --color-brand-pink: #DB76B9;
   --color-brand-red: #E46868;
   --font-sans: 'Lexend', sans-serif;
+  --grey-bg: #EDEDED;
+  --grey-text: #636363;
 }
 
 body {
