@@ -1,15 +1,16 @@
-// import React, { useState } from 'react';
-import { useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Wallet, Info, ArrowUpRight, ArrowDownRight, History } from 'lucide-react';
+import { useAuth } from '../AuthContext';
 
 export default function Credits() {
-    // O utilizador começa com 0 créditos
-    const [balance] = useState(0);
 
-    // Lista vazia para representar o histórico inicial
-    // Numa aplicação real, estes dados viriam da base de dados
-    const transactionHistory: any[] = [];
+    // Extraímos os dados do utilizador do contexto global
+    const { userData } = useAuth();
+
+    // Lemos a lista de transações da base de dados e invertemos a ordem
+    // Se não existirem transações, usamos uma lista vazia
+    const transactionHistory: { id: number, type: string, description: string, date: string, amount: number }[] = 
+        userData?.transactions ? [...userData.transactions].reverse() : [];
 
     return (
         <div className="flex flex-col md:flex-row h-screen w-screen bg-gray-100 overflow-hidden font-sans">
@@ -28,16 +29,14 @@ export default function Credits() {
                     {/* Coluna Esquerda: Saldo e Regras */}
                     <div className="flex-1 flex flex-col gap-8">
 
-                        {/* Cartão de Saldo Atual */}
                         <div className="bg-gradient-to-r from-brand-pink to-brand-red p-8 rounded-[32px] text-white shadow-md flex items-center justify-between">
                             <div>
                                 <p className="text-white/80 text-lg mb-1">Available Balance</p>
-                                <h3 className="text-5xl font-bold">{balance}</h3>
+                                <h3 className="text-5xl font-bold">{userData?.credits || 0}</h3>
                             </div>
                             <Wallet className="w-16 h-16 opacity-80" />
                         </div>
 
-                        {/* Cartão de Explicação de Ganhos */}
                         <div className="bg-white p-8 rounded-[32px] shadow-sm border border-gray-100">
                             <div className="flex items-center gap-3 mb-6">
                                 <Info className="text-brand-pink w-6 h-6" />
@@ -98,9 +97,8 @@ export default function Credits() {
                             </div>
                         ) : (
                             <div className="space-y-4 overflow-y-auto pr-2">
-                                {/* Exemplo de como renderizar o histórico futuramente */}
-                                {transactionHistory.map((transaction, index) => (
-                                    <div key={index} className="flex items-center justify-between p-4 border-b border-gray-100 last:border-0">
+                                {transactionHistory.map((transaction) => (
+                                    <div key={transaction.id} className="flex items-center justify-between p-4 border-b border-gray-100 last:border-0">
                                         <div className="flex items-center gap-4">
                                             <div className={`p-3 rounded-full ${transaction.type === 'earn' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
                                                 {transaction.type === 'earn' ? <ArrowUpRight size={20} /> : <ArrowDownRight size={20} />}

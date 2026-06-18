@@ -11,15 +11,11 @@ export function Navbar() {
         setIsOpen(!isOpen);
     };
 
-    const { userData } = useAuth();
+    const { userData } = useAuth(); // extract userData from the AuthContext
 
 
     return (
         <>
-            {/* 1. Botão de controlo (Aparece apenas em mobile) 
-                A classe md:hidden oculta este botão em ecrãs médios e grandes.
-                O z-50 garante que fica acima de todos os elementos.
-            */}
             <button
                 onClick={toggleMenu}
                 className="md:hidden fixed top-6 left-6 z-50 bg-brand-pink text-white p-2 rounded-lg shadow-md"
@@ -28,10 +24,6 @@ export function Navbar() {
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
 
-            {/* 2. Menu de Navegação 
-                Adicionadas classes de transição (transition-transform) e posicionamento fixo.
-                A expressão condicional dita se o menu é arrastado para fora do ecrã (-translate-x-[120%]) ou mantido visível (translate-x-0).
-            */}
             <nav className={`
                 fixed md:relative z-40
                 flex flex-col h-[calc(100vh-3rem)] w-70
@@ -64,10 +56,7 @@ export function Navbar() {
                 </div>
             </nav>
 
-            {/* 3. Fundo Obscuro (Overlay) 
-                Aparece apenas quando o menu está aberto em mobile.
-                Clicar nele executa a função toggleMenu para fechar a navegação.
-            */}
+
             {isOpen && (
                 <div
                     className="fixed inset-0 bg-black/50 z-30 md:hidden"

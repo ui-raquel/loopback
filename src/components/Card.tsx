@@ -1,47 +1,49 @@
-// import React from 'react';
-// Importamos o Link para gerir a navegação
 import { Link } from 'react-router-dom';
 
-// 1. Atualizamos a interface para incluir a propriedade linkTo
 interface CardProps {
     category: string;
     credits: number;
     title: string;
     author: string;
     imageUrl: string;
-    linkTo: string; // Define o destino do clique
+    linkTo: string;
+    disabled?: boolean; // Nova propriedade
 }
 
-export default function Card({ category, credits, title, author, imageUrl, linkTo }: CardProps) {
-    return (
-        <Link 
-            to={linkTo}
-            className="w-full h-80 flex flex-col rounded-[32px] overflow-hidden shadow-lg font-sans bg-gray-900 transition-transform duration-300 hover:scale-105 hover:shadow-xl cursor-pointer block"
-        >
-            <div className="bg-brand-pink text-white text-center py-3 text-lg font-medium tracking-wide">
-                {category}
-            </div>
+export default function Card({ category, credits, title, author, imageUrl, linkTo, disabled }: CardProps) {
 
-            <div className="relative flex-1">
-                <img 
-                    src={imageUrl} 
-                    alt={`Imagem do projeto ${title}`} 
-                    className="absolute inset-0 w-full h-full object-cover"
-                />
-
-                <div className="absolute top-4 right-4 bg-gray-800/60 border border-white/50 text-white text-sm px-4 py-1.5 rounded-full backdrop-blur-md">
-                    +{credits} Credits
+    // Conteúdo visual do cartão
+    const cardContent = (
+        <div className={`flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden h-full transition-all ${disabled ? 'grayscale opacity-60 cursor-not-allowed' : 'hover:shadow-md cursor-pointer'}`}>
+            <div className="relative h-48 w-full">
+                <img src={imageUrl} alt={title} className="w-full h-full object-cover" />
+                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold text-brand-pink shadow-sm">
+                    +{credits} CR
                 </div>
+            </div>
+            <div className="p-5 flex flex-col flex-1">
+                <span className="text-xs font-bold text-gray-400 mb-2 tracking-wider">{category}</span>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">{title}</h3>
+                <p className="text-sm text-gray-500 mt-auto">by {author}</p>
 
-                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6 pt-24">
-                    <h3 className="text-white text-2xl font-semibold mb-1 leading-tight">
-                        {title}
-                    </h3>
-                    <p className="text-white/80 text-lg font-light">
-                        {author}
+                {/* Aviso visível caso o projeto já tenha sido avaliado */}
+                {disabled && (
+                    <p className="text-xs text-brand-red font-medium mt-3 bg-red-50 p-2 rounded-lg text-center">
+                        Already reviewed
                     </p>
-                </div>
+                )}
             </div>
+        </div>
+    );
+
+    // Se estiver desativado, devolvemos apenas a 'div' (sem link). Caso contrário, usamos o 'Link'.
+    if (disabled) {
+        return <div>{cardContent}</div>;
+    }
+
+    return (
+        <Link to={linkTo} className="block h-full">
+            {cardContent}
         </Link>
     );
 }

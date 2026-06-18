@@ -1,34 +1,89 @@
 import React, { useState } from 'react';
 import { Navbar } from '../components/Navbar';
-import { UploadCloud, CheckCircle } from 'lucide-react';
+import { UploadCloud, CheckCircle, AlertCircle } from 'lucide-react';
+
+// 1. Importar as ferramentas do Firebase e o Contexto
+import { db } from '../firebase';
+import { collection, addDoc, doc, updateDoc, increment, arrayUnion } from 'firebase/firestore';
+import { useAuth } from '../AuthContext';
 
 export default function AddProject() {
+    // Extraímos os dados do utilizador autenticado
+    const { user, userData } = useAuth();
+
     // Estados para guardar os dados do formulário
     const [title, setTitle] = useState('');
     const [category, setCategory] = useState('');
     const [description, setDescription] = useState('');
     const [coverImageUrl, setCoverImageUrl] = useState('');
     const [reviewImageUrl, setReviewImageUrl] = useState('');
-
-    // NOVO: Estado para a complexidade do projeto
     const [complexity, setComplexity] = useState('');
 
+    // Estados para controlo da interface
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [error, setError] = useState(''); // Novo estado para mostrar avisos de saldo
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(''); // Limpa erros antigos
 
-        console.log("Novo projeto:", {
-            title,
-            category,
-            complexity,
-            description,
-            coverImageUrl,
-            reviewImageUrl
-        });
+        if (!user || !userData) return;
 
-        setIsSubmitted(true);
-        setTimeout(() => setIsSubmitted(false), 3000);
+        let cost = 0;
+        if (complexity === 'easy') cost = 20;
+        else if (complexity === 'medium') cost = 40;
+        else if (complexity === 'large') cost = 80;
+
+        if (userData.credits < cost) {
+            setError(`You need ${cost} credits to publish this project, but you only have ${userData.credits} CR.`);
+            return; 
+        }
+
+        try {
+            await addDoc(collection(db, 'projects'), {
+                title: title,
+                category: category,
+                complexity: complexity,
+                description: description,
+                coverImageUrl: coverImageUrl,
+                reviewImageUrl: reviewImageUrl,
+                credits: cost, 
+                authorId: user.uid,
+                authorName: userData.name || "Student",
+                createdAt: new Date().toISOString()
+            });
+
+            // 5. Retirar o dinheiro e guardar o talão no histórico
+            const userRef = doc(db, 'users', user.uid);
+            const today = new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+
+            await updateDoc(userRef, {
+                credits: increment(-cost),
+                transactions: arrayUnion({
+                    id: Date.now(),
+                    type: 'spend',
+                    description: `Published: ${title}`,
+                    date: today,
+                    amount: cost
+                })
+            });
+
+            setIsSubmitted(true);
+
+            setTimeout(() => {
+                setIsSubmitted(false);
+                setTitle('');
+                setCategory('');
+                setComplexity('');
+                setDescription('');
+                setCoverImageUrl('');
+                setReviewImageUrl('');
+            }, 3000);
+
+        } catch (err) {
+            console.error("Erro ao publicar projeto:", err);
+            setError("Something went wrong while publishing. Please try again.");
+        }
     };
 
     return (
@@ -54,6 +109,14 @@ export default function AddProject() {
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-6">
 
+                            {/* Mostrar aviso vermelho se não houver saldo */}
+                            {error && (
+                                <div className="flex items-start bg-red-50 text-brand-red p-4 rounded-2xl border border-red-100 mb-6">
+                                    <AlertCircle className="w-6 h-6 mr-3 flex-shrink-0 mt-0.5" />
+                                    <p className="font-medium">{error}</p>
+                                </div>
+                            )}
+
                             <div className="flex flex-col space-y-2">
                                 <label className="text-gray-700 font-medium text-lg">Project Title</label>
                                 <input
@@ -66,7 +129,6 @@ export default function AddProject() {
                                 />
                             </div>
 
-                            {/* Agrupamento da Categoria e Complexidade lado a lado em ecrãs maiores */}
                             <div className="flex flex-col md:flex-row gap-6">
                                 <div className="flex flex-col space-y-2 flex-1">
                                     <label className="text-gray-700 font-medium text-lg">Category</label>
@@ -85,7 +147,6 @@ export default function AddProject() {
                                     </select>
                                 </div>
 
-                                {/* NOVO: Campo de Complexidade */}
                                 <div className="flex flex-col space-y-2 flex-1">
                                     <label className="text-gray-700 font-medium text-lg">Complexity Level</label>
                                     <select
@@ -95,9 +156,9 @@ export default function AddProject() {
                                         className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 text-gray-800 outline-none focus:border-brand-pink focus:ring-2 focus:ring-brand-pink/20 transition-all appearance-none"
                                     >
                                         <option value="" disabled>Select complexity...</option>
-                                        <option value="easy">Easy (Rewards 20 Credits)</option>
-                                        <option value="medium">Medium (Rewards 40 Credits)</option>
-                                        <option value="large">Large (Rewards 80 Credits)</option>
+                                        <option value="easy">Easy (Costs 20 Credits)</option>
+                                        <option value="medium">Medium (Costs 40 Credits)</option>
+                                        <option value="large">Large (Costs 80 Credits)</option>
                                     </select>
                                 </div>
                             </div>
@@ -142,7 +203,12 @@ export default function AddProject() {
                                 </div>
                             </div>
 
-                            <div className="pt-4">
+                            <div className="pt-4 flex items-center justify-between">
+                                {/* Informação visual na UI para lembrar do custo atualizado */}
+                                <div className="text-gray-500 font-medium">
+                                    Current Balance: <span className="text-brand-pink font-bold">{userData?.credits || 0} CR</span>
+                                </div>
+
                                 <button
                                     type="submit"
                                     className="w-full md:w-auto px-10 py-4 bg-gradient-to-r from-brand-pink to-brand-red text-white text-lg font-semibold rounded-2xl shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all"

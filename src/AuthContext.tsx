@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { auth, db } from './firebase'; // Ajusta o caminho se o firebase.ts estiver noutra pasta
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { doc, getDoc, type DocumentData } from 'firebase/firestore';
+import { doc, onSnapshot, type DocumentData } from 'firebase/firestore';
+
 
 // 1. Definição do Contexto
 interface AuthContextType {
@@ -24,26 +25,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Função do Firebase que escuta alterações de login/logout
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        // Variável para guardar a função de paragem do "espião" da base de dados
+        let unsubscribeSnapshot: () => void;
+
+        const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
 
             if (currentUser) {
-                // Se houver login, procura os dados extra na Firestore
+                // Em vez de ler 1 vez (getDoc), usamos o onSnapshot para escutar em tempo real
                 const docRef = doc(db, 'users', currentUser.uid);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    setUserData(docSnap.data());
-                }
+                unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        setUserData(docSnap.data());
+                    }
+                });
             } else {
                 setUserData(null);
+                if (unsubscribeSnapshot) unsubscribeSnapshot(); // Pára de escutar se fizer logout
             }
             setLoading(false);
         });
 
-        // Limpa o evento quando o componente é desmontado
-        return () => unsubscribe();
+        // Limpa tudo quando fechas a app
+        return () => {
+            unsubscribeAuth();
+            if (unsubscribeSnapshot) unsubscribeSnapshot();
+        };
     }, []);
 
     return (
