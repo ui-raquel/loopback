@@ -24,20 +24,16 @@ const AVATAR_OPTIONS = [
 export default function Profile() {
     const { user, userData } = useAuth();
 
-    // Estados para os projetos e interface
     const [myProjects, setMyProjects] = useState<any[]>([]);
 
-    // Estados para o Modal de Avatar
     const [showAvatarModal, setShowAvatarModal] = useState(false);
     const [selectedAvatar, setSelectedAvatar] = useState(userData?.avatarUrl || '');
 
-    // Estados para o Modal de Edição de Projeto
     const [editingProject, setEditingProject] = useState<any>(null);
     const [editTitle, setEditTitle] = useState('');
     const [editCategory, setEditCategory] = useState('');
     const [editDescription, setEditDescription] = useState('');
 
-    // 1. Carregar apenas os MEUS projetos
     useEffect(() => {
         if (!user) return;
 
@@ -47,7 +43,6 @@ export default function Profile() {
                 id: doc.id,
                 ...doc.data()
             }));
-            // Ordenar do mais recente para o mais antigo (localmente)
             const sorted = projectsData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             setMyProjects(sorted);
         });
@@ -55,7 +50,6 @@ export default function Profile() {
         return () => unsubscribe();
     }, [user]);
 
-    // 2. Função para guardar a nova foto de perfil
     const handleSaveAvatar = async () => {
         if (!user) return;
         try {
@@ -66,7 +60,6 @@ export default function Profile() {
         }
     };
 
-    // 3. Funções para Gerir Projetos (Apagar e Editar)
     const handleDeleteProject = async (projectId: string) => {
         const isConfirmed = window.confirm("Are you sure you want to delete this project? This action cannot be undone.");
         if (!isConfirmed) return;
@@ -102,28 +95,21 @@ export default function Profile() {
     };
 
     return (
-        <div className="flex flex-col md:flex-row h-screen w-screen bg-gray-100 overflow-hidden font-sans relative">
+        <div className="animate-page-in flex flex-col md:flex-row h-screen w-screen bg-gray-100 overflow-hidden font-sans relative">
             <div className="flex flex-col w-auto">
                 <Navbar />
             </div>
 
             <section className="flex flex-col flex-1 p-4 md:p-8 m-2 md:m-6 overflow-y-auto">
-
-                {/* CABEÇALHO DO PERFIL */}
                 <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 p-8 mb-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
-                    {/* Fundo decorativo */}
-                    <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-brand-pink/20 to-brand-red/20"></div>
-
-                    {/* Foto de Perfil clicável */}
                     <div className="relative mt-8 group cursor-pointer" onClick={() => setShowAvatarModal(true)}>
-                        <div className="w-32 h-32 bg-gray-200 rounded-full border-4 border-white shadow-md overflow-hidden flex items-center justify-center text-gray-400 font-bold text-4xl">
+                        <div className="w-32 h-32 bg-gray-200 rounded-full border-4 border-pink-200 shadow-md overflow-hidden flex items-center justify-center text-gray-400 font-bold text-4xl">
                             {userData?.avatarUrl ? (
-                                <img src={userData.avatarUrl} alt="Profile" className="w-full h-full object-cover bg-white" />
+                                <img src={userData.avatarUrl} alt="Profile" className="w-full h-full object-cover bg-pink-300" />
                             ) : (
                                 userData?.name?.charAt(0) || "U"
                             )}
                         </div>
-                        {/* Overlay de Edição ao passar o rato */}
                         <div className="absolute inset-0 bg-black/40 rounded-full flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <Camera className="text-white w-8 h-8 mb-1" />
                             <span className="text-white text-xs font-medium">Change</span>
