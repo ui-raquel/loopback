@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Save, User, Lock } from 'lucide-react';
+import { useAuth } from '../AuthContext';
 
 export default function Settings() {
-    const [name, setName] = useState('Lola Miller');
-    const [email, setEmail] = useState('lolamiller@faul.pt');
+    const { userData } = useAuth();
+    const [name, setName] = useState(userData?.name || 'Lola Miller');
+    const [email, setEmail] = useState(userData?.email || 'lolamiller@faul.pt');
     const [password, setPassword] = useState('');
     const [isSaved, setIsSaved] = useState(false);
 

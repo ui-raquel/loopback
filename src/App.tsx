@@ -8,10 +8,12 @@ import MyReviews from './pages/MyReviews';
 import FindPeers from './pages/FindPeers';
 import Settings from './pages/Settings';
 import Register from './pages/Register';
+import { AuthProvider } from './AuthContext'; 
 
 function App() {
   return (
     <BrowserRouter>
+      <AuthProvider>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/feed" element={<Feed />} />
@@ -24,6 +26,7 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/register" element={<Register />} />
       </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

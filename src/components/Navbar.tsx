@@ -1,16 +1,18 @@
-// import React, { useState } from 'react';
 import { useState } from "react";
 import NavbarButton from "./NavbarButton";
 import { House, Plus, Star, Wallet, Smile, Settings, Menu, X } from 'lucide-react';
+import { useAuth } from '../AuthContext';
+
 
 export function Navbar() {
-    // Definimos a variável de estado que controla a visibilidade do menu em mobile
     const [isOpen, setIsOpen] = useState(false);
 
-    // Função que inverte o estado (de falso para verdadeiro e vice-versa)
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     };
+
+    const { userData } = useAuth();
+
 
     return (
         <>
@@ -45,8 +47,8 @@ export function Navbar() {
                         alt="User Icon"
                         className="h-24 w-24 rounded-full border-4 border-white/30 mb-4 bg-white/10"
                     />
-                    <h2 className="text-2xl font-bold tracking-wide">Lola Miller</h2>
-                    <p className="text-sm font-light opacity-90">lolamiller@faul.pt</p>
+                    <h2 className="text-2xl font-bold tracking-wide">{userData?.name || "Student"}</h2>
+                    <p className="text-sm font-light opacity-90">{userData?.email || "student@faul.pt"}</p>
                 </div>
                 <div className="flex flex-col space-y-3 flex-1 w-full mt-4">
                     <NavbarButton to="/feed" icon={<House />} label="homepage" />

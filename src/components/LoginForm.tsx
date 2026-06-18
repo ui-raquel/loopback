@@ -17,7 +17,7 @@ export function LoginForm() {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             navigate('/feed');
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Erro de login:", err);
             setError("Invalid credentials. Please check your email and password.");
         }

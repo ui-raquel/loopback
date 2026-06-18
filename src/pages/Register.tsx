@@ -55,7 +55,7 @@ function RegisterForm() {
             // 4. Redirecionar para o feed
             navigate('/feed');
 
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Erro no registo:", err);
             setError("Error creating account. Ensure your password is at least 6 characters long.");
         }
