@@ -1,11 +1,12 @@
-// Import the functions you need from the SDKs you need
+// Importar a função principal de inicialização do SDK do Firebase
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Importar as ferramentas de Autenticação, Base de Dados e Analytics
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+// import { getAnalytics } from "firebase/analytics";
+
+// As credenciais da tua aplicação web (fornecidas pela consola do Firebase)
 const firebaseConfig = {
   apiKey: "AIzaSyCB4W69BnQZVOTKVgNSgsNBIWRfshnatFI",
   authDomain: "loopback-e1fb6.firebaseapp.com",
@@ -13,9 +14,17 @@ const firebaseConfig = {
   storageBucket: "loopback-e1fb6.firebasestorage.app",
   messagingSenderId: "830753962688",
   appId: "1:830753962688:web:54ff7f2cbf49689aac8b25",
-  measurementId: "G-N3ZDMRZE42"
+  measurementId: "G-N3ZDMRZE42",
 };
 
-// Initialize Firebase
+// Inicializar a aplicação Firebase com as credenciais fornecidas
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// Inicializar o serviço de Analytics
+// const analytics = getAnalytics(app);
+
+// Inicializar e exportar a instância de Autenticação para uso noutros componentes
+export const auth = getAuth(app);
+
+// Inicializar e exportar a instância da Base de Dados (Firestore) para uso noutros componentes
+export const db = getFirestore(app);
