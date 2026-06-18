@@ -1,4 +1,4 @@
-// import React from 'react';
+import React from 'react';
 import { Navbar } from "../components/Navbar";
 import Card from '../components/Card'; 
 import { Search, Filter } from 'lucide-react';
@@ -33,7 +33,10 @@ export default function Feed() {
   ];
 
   return (
-    <div className="flex flex-col md:flex-row h-screen w-screen bg-grey-bg overflow-hidden font-sans">
+    /* PASSO 1: Atualização do Fundo
+       Substituímos 'bg-grey-bg' por 'bg-gray-100' para manter o mesmo tom cinza claro das outras páginas.
+    */
+    <div className="flex flex-col md:flex-row h-screen w-screen bg-gray-100 overflow-hidden font-sans">
       
       <div className="hidden md:flex flex-col w-auto">
         <Navbar />
@@ -42,7 +45,11 @@ export default function Feed() {
       <section className="flex flex-col flex-1 p-4 md:p-8 m-2 md:m-6 overflow-y-auto">
         
         <h1 className="text-2xl md:text-3xl lg:text-4xl font-medium mb-2 leading-tight z-10">Welcome, Lola</h1>
-        <h2 className="text-base md:text-xl lg:text-2xl font-light text-grey-text mb-6 md:mb-8 leading-tight z-10">
+        
+        {/* PASSO 2: Atualização do Subtítulo
+           Substituímos 'text-grey-text' por 'text-gray-500'.
+        */}
+        <h2 className="text-base md:text-xl lg:text-2xl font-light text-gray-500 mb-6 md:mb-8 leading-tight z-10">
           Find projects from other students and review them to earn credits
         </h2>
 
@@ -61,7 +68,7 @@ export default function Feed() {
             </button>
         </div>
 
-        {/* renderização dinâmica com map() */}
+        {/* Renderização dinâmica com map() */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8"> 
             {projectsData.map((project) => (
                 <Card 
