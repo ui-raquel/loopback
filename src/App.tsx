@@ -7,6 +7,7 @@ import Credits from './pages/Credits';
 import MyReviews from './pages/MyReviews';
 import FindPeers from './pages/FindPeers';
 import Settings from './pages/Settings';
+import Register from './pages/Register';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/reviews" element={<MyReviews />} />
         <Route path="/peers" element={<FindPeers />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </BrowserRouter>
   )

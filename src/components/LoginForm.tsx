@@ -1,34 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { InputField } from './InputField'; // Ajusta o caminho de importação conforme necessário
+import { InputField } from './InputField';
+import { auth } from '../firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export function LoginForm() {
     const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        navigate('/feed');
+        setError('');
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            navigate('/feed');
+        } catch (err: any) {
+            console.error("Erro de login:", err);
+            setError("Invalid credentials. Please check your email and password.");
+        }
     };
 
     return (
         <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-10">
-            <h2 className="text-2xl font-bold text-gray-800 mb-1">
-                Let's Get Started!
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-1">Let's Get Started!</h2>
             <p className="text-gray-500 mb-8">Log in to join your peers</p>
 
+            {error && (
+                <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4 border border-red-100">
+                    {error}
+                </div>
+            )}
+
             <form onSubmit={handleLogin}>
-                {/* Utilizamos o nosso componente reutilizável */}
                 <InputField
                     label="E-mail"
                     type="email"
                     placeholder="yourname@university.com"
+                    value={email}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 />
 
                 <InputField
                     label="Password"
                     type="password"
                     placeholder="••••••••"
+                    value={password}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                 />
 
                 <label className="flex items-center gap-2 mb-8 mt-4 text-sm text-gray-600">
@@ -45,7 +65,11 @@ export function LoginForm() {
 
                 <p className="text-center text-sm text-gray-500 mt-6">
                     Don't have an account?{' '}
-                    <span className="underline font-medium text-gray-700 cursor-pointer">
+                    {/* Alterámos aqui: em vez de mudar o estado, navega para a nova página */}
+                    <span
+                        onClick={() => navigate('/register')}
+                        className="underline font-medium text-gray-700 cursor-pointer hover:text-brand-pink"
+                    >
                         Sign Up
                     </span>
                 </p>

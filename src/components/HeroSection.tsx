@@ -1,5 +1,3 @@
-// import React from 'react';
-
 export function HeroSection() {
     return (
         <div className="flex flex-col items-start max-w-md text-white">
