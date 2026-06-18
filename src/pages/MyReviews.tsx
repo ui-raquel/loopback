@@ -4,6 +4,7 @@ import { MessageSquare, ArrowRight } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '../AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function MyReviews() {
     const { user } = useAuth();
@@ -16,13 +17,13 @@ export default function MyReviews() {
     useEffect(() => {
         if (!user) return;
 
-        const unsubReviews = onSnapshot(collection(db, 'reviews'), (snap) => 
+        const unsubReviews = onSnapshot(collection(db, 'reviews'), (snap) =>
             setReviews(snap.docs.map(d => ({ id: d.id, ...d.data() })))
         );
-        const unsubProjects = onSnapshot(collection(db, 'projects'), (snap) => 
+        const unsubProjects = onSnapshot(collection(db, 'projects'), (snap) =>
             setProjects(snap.docs.map(d => ({ id: d.id, ...d.data() })))
         );
-        const unsubUsers = onSnapshot(collection(db, 'users'), (snap) => 
+        const unsubUsers = onSnapshot(collection(db, 'users'), (snap) =>
             setUsersList(snap.docs.map(d => ({ id: d.id, ...d.data() })))
         );
 
@@ -36,7 +37,7 @@ export default function MyReviews() {
     const reviewsGiven: any[] = [];
     const reviewsReceived: any[] = [];
 
-    const sortedReviews = [...reviews].sort((a, b) => 
+    const sortedReviews = [...reviews].sort((a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
@@ -46,8 +47,8 @@ export default function MyReviews() {
 
         if (!project) return; //ignroe if the project was deleted
 
-        const dateFormatted = new Date(review.createdAt).toLocaleDateString('en-US', { 
-            day: 'numeric', month: 'short', year: 'numeric' 
+        const dateFormatted = new Date(review.createdAt).toLocaleDateString('en-US', {
+            day: 'numeric', month: 'short', year: 'numeric'
         });
 
         const commentText = review.globalIdea || "Feedback provided via Pins. Check the project to see details.";
@@ -130,7 +131,14 @@ export default function MyReviews() {
                                         </div>
                                         <div className="flex gap-3 mt-2">
                                             <MessageSquare className="text-brand-pink w-5 h-5 flex-shrink-0 mt-1" />
-                                            <p className="text-gray-700">{review.comment}</p>
+                                            <p className="text-gray-700 line-clamp-2">{review.comment}</p>
+                                        </div>
+
+                                        {/* Nova ligação para a página de detalhes */}
+                                        <div className="mt-2 pt-3 border-t border-gray-200">
+                                            <Link to={`/review/${review.id}`} className="text-sm font-medium text-brand-pink hover:text-[#c560a2] flex items-center gap-1">
+                                                Read full feedback
+                                            </Link>
                                         </div>
                                     </div>
                                 ))

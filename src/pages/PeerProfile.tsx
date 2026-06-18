@@ -39,7 +39,7 @@ export default function PeerProfile() {
         const q = query(collection(db, 'projects'), where('authorId', '==', peerId));
         const unsubProjects = onSnapshot(q, (snapshot) => {
             const projectsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            const sorted = projectsData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            const sorted = projectsData.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             setPeerProjects(sorted);
         });
 

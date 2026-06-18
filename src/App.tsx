@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import { AuthProvider } from './AuthContext'; 
 import Profile from './pages/Profile';
 import PeerProfile from './pages/PeerProfile';
+import ReviewDetails from './pages/ReviewDetails';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/peer/:peerId" element={<PeerProfile />} />
+        <Route path="/review/:reviewId" element={<ReviewDetails />} />
       </Routes>
       </AuthProvider>
     </BrowserRouter>

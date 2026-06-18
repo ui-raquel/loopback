@@ -43,7 +43,7 @@ export default function Profile() {
                 id: doc.id,
                 ...doc.data()
             }));
-            const sorted = projectsData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            const sorted = projectsData.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             setMyProjects(sorted);
         });
 
