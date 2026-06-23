@@ -1,3 +1,6 @@
+<img width="101" height="32" alt="Group 16" src="https://github.com/user-attachments/assets/41724962-1862-4a4c-aa9c-da446a3339ec" />
+
+
 # Welcome to LoopBACK.[^1]
 A peer-review network for students to trade project feedback powered by a credit loop economy.
 
